@@ -1,0 +1,157 @@
+#RGB DE PYTHON
+# TODO crear un cambiador del numero pero en la rueda del raton
+
+
+
+
+from ctypes.wintypes import HCOLORSPACE
+from multiprocessing.dummy import active_children
+from operator import truediv
+from pickle import TRUE
+from re import S, T
+from tkinter import Button
+from turtle import width
+from typing import Dict
+import pygame
+
+
+pygame.init()
+
+white = (255, 255, 255)
+gray = (48, 48, 48)
+black = (0, 0, 0)
+red = (255, 0, 0)
+green = (0, 255, 0)
+blue = (0, 0, 255)
+WIDTH = 700
+HEIGHT = 600
+fps = 60
+R_value = 100 
+G_value = 50 
+B_value = 90
+r_active = False
+g_active = False
+b_active = False
+active_entry = False
+entry = ''
+take_change =False
+
+font = pygame.font.Font('freesansbold.ttf' , 35)
+small_font = pygame.font.Font('freesansbold.ttf' , 20)
+pygame.display.set_caption("RGB Color Picker")
+
+screen = pygame.display.set_mode([WIDTH, HEIGHT])   
+timer = pygame.time.Clock()
+
+
+class Color_Button:
+    def __init__(self, color,x_pos,y_pos,wide,tall,text, active, new_value):
+        self.color = color
+        self.x_pos = x_pos
+        self.y_pos = y_pos
+        self.wide = wide
+        self.tall = tall
+        self.text = text
+        self.active = active
+        self.new_value = new_value
+        self.rect = ''
+
+    def draw(self):
+        self.rect = pygame.draw.rect(screen,self.color, [self.x_pos,self.y_pos, self.wide, self.tall ],0,3)
+        button_text = font.render(str(self.text), True,black, None)
+        screen.blit(button_text, (self.x_pos +20, self.y_pos + 20))
+        if self.active:
+            pygame.draw.rect(screen,white, [self.x_pos,self.y_pos, self.wide, self.tall ], 8, 3)
+            entry_text = font.render('('+str(self.new_value)+')', True, gray, None)
+            screen.blit(entry_text, (self.x_pos + 70, self.y_pos + 50) )
+
+
+    def check_click(self,coords):
+        if self.rect.collidepoint(coords):
+            return True
+        else:
+            return False
+
+
+def draw_window(R, G, B):
+    pygame.draw.line(screen, white, (0, 100), (WIDTH, 100), 3)
+
+    pygame.draw.rect(screen, (R, G, B), (WIDTH/10, HEIGHT/4, WIDTH *.8, HEIGHT * .5 ), 0, 10)
+    pygame.draw.rect(screen, white, (WIDTH/10, HEIGHT/4, WIDTH *.8, HEIGHT * .5 ), 10, 10)
+    window_text = font.render(f'Los valores en R G B son ({R}, {G}, {B})', TRUE, white, None)
+    screen.blit(window_text, (WIDTH/20, HEIGHT/4 - 35 ))
+
+
+
+
+
+
+
+running = True
+while running:
+
+    timer.tick(fps)
+    screen.fill(black)
+    R_button = Color_Button(red, 0, 0, WIDTH/3, 100, R_value, r_active, entry)
+    G_button = Color_Button(green, WIDTH/3, 0,WIDTH/3, 100, G_value, g_active, entry)
+    B_button = Color_Button(blue,2 * WIDTH/3, 0, WIDTH/3, 100, B_value, b_active, entry)
+    R_button.draw()
+    G_button.draw()
+    B_button.draw()
+
+    draw_window(R_value, G_value, B_value)
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            r_active = R_button.check_click(event.pos)
+            g_active = G_button.check_click(event.pos)
+            b_active = B_button.check_click(event.pos)
+        if event.type == pygame.KEYDOWN and active_entry:
+            if event.unicode.isdigit() and len(entry) <3:
+                entry += str(event.unicode)
+            if event.key == pygame.K_BACKSPACE and len(entry) >0:
+                entry = entry.replace(entry, entry [0: -1])
+            if event.key == pygame.K_ESCAPE:
+                r_active = False
+                g_active = False
+                b_active = False
+            if event.key == pygame.K_RETURN and len(entry)> 0:
+                take_change = True
+            
+
+    active_entry = r_active or g_active or b_active
+
+    if r_active:
+        if len(entry)> 0 and take_change:
+            if int(entry) < 256 and int(entry) >=0:
+                R_value = int(entry)
+            take_change = False
+            r_active = False
+            entry = ''
+        g_active =False
+        b_active =False
+    if g_active:
+        if len(entry)> 0 and take_change:
+            if int(entry) < 256 and int(entry) >=0:
+                G_value = int(entry)
+            take_change = False
+            g_active = False
+            entry = ''
+        r_active =False
+        b_active =False
+    if b_active:
+        if len(entry)> 0 and take_change:
+            if int(entry) < 256 and int(entry) >=0:
+                B_value = int(entry)
+            take_change = False
+            b_active = False
+            entry = ''
+        g_active =False
+        r_active =False
+
+    pygame.display.flip()
+pygame.quit()
+
+
